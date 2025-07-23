@@ -27,12 +27,9 @@ namespace TaskbarShortcuts
 
         private void ScanFolder(string path, ToolStripMenuItem parent)
         {
-            parent.DropDownItems.Add(new ToolStripMenuItem()
-            {
-                Text = Path.GetFileName(path),
-                Image = Properties.Resources.FolderOpenedImage,
-                Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold)
-            });
+            parent.DropDownItems.Add(CreateFolderHeaderRow(path));
+            parent.DropDownItems.Add(new ToolStripSeparator());
+
             var dirs = Directory.GetDirectories(path);
             foreach (var dir in dirs)
             {
@@ -61,6 +58,19 @@ namespace TaskbarShortcuts
         public ToolStripMenuItem GetFolderItem()
         {
             return baseFolderItem;
+        }
+
+        private static ToolStripMenuItem CreateFolderHeaderRow(string path)
+        {
+            ToolStripMenuItem headerItem = new ToolStripMenuItem()
+            {
+                Text = Path.GetFileName(path),
+                ToolTipText = path,
+                Image = Properties.Resources.FolderOpenedImage,
+                Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold)
+            };
+            headerItem.Click += (sender, e) => { LaunchApp(path); };
+            return headerItem;
         }
 
         private static void LaunchApp(string path)
