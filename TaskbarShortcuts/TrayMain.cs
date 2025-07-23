@@ -37,6 +37,7 @@ namespace TaskbarShortcuts
             }
 
             TrayFolder tf = new TrayFolder(fbd.SelectedPath);
+            // TODO: Add and sort list instead of inserting
             trayMenu.Items.Insert(1, tf.GetFolderItem());
         }
     }
