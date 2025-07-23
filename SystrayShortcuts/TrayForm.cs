@@ -1,4 +1,4 @@
-namespace TaskbarShortcuts
+namespace SystrayShortcuts
 {
     public partial class TrayForm : Form
     {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TaskbarShortcuts
+﻿namespace SystrayShortcuts
 {
     
     internal class TrayMain
@@ -21,7 +15,7 @@ namespace TaskbarShortcuts
 
             trayIcon = new NotifyIcon()
             {
-                Text = "Taskbar shortcuts",
+                Text = "Systray shortcuts",
                 Icon = Properties.Resources.ApplicationIcon,
                 ContextMenuStrip = trayMenu,
                 Visible = true

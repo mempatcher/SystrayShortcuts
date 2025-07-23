@@ -1,4 +1,4 @@
-namespace TaskbarShortcuts
+namespace SystrayShortcuts
 {
     internal static class Program
     {
