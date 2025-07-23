@@ -15,7 +15,7 @@ namespace TaskbarShortcuts
         public TrayMain()
         {
             trayMenu = new ContextMenuStrip();
-            trayMenu.Items.Add("Add folder shortcut...", Properties.Resources.AddFolderImage, (obj,e) => AddFolder());
+            trayMenu.Items.Add("Add folder...", Properties.Resources.AddFolderImage, (obj,e) => AddFolder());
             trayMenu.Items.Add(new ToolStripSeparator());
             trayMenu.Items.Add("Exit", null, (obj, e) => Application.Exit());
 
