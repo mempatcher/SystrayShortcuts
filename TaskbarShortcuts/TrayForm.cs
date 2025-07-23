@@ -1,8 +1,8 @@
 namespace TaskbarShortcuts
 {
-    public partial class Form1 : Form
+    public partial class TrayForm : Form
     {
-        public Form1()
+        public TrayForm()
         {
             InitializeComponent();
         }

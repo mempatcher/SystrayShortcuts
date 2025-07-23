@@ -1,6 +1,6 @@
 ﻿namespace TaskbarShortcuts
 {
-    partial class Form1
+    partial class TrayForm
     {
         /// <summary>
         ///  Required designer variable.
