@@ -2,18 +2,12 @@ namespace TaskbarShortcuts
 {
     public partial class TrayForm : Form
     {
-        private NotifyIcon trayIcon;
+        private TrayMain main;
 
         public TrayForm()
         {
             //InitializeComponent();
-
-            trayIcon = new NotifyIcon()
-            {
-                Text = "Taskbar shortcuts",
-                Icon = Properties.Resources.ApplicationIcon,
-                Visible = true
-            };
+            main = new TrayMain();
         }
 
         protected override void OnLoad(EventArgs e)
