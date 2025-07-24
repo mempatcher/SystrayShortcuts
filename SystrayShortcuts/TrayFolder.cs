@@ -43,7 +43,7 @@ namespace SystrayShortcuts
             {
                 parent.DropDownItems.Add(Path.GetFileName(file),
                     Icon.ExtractAssociatedIcon(file)?.ToBitmap(),
-                    (obj, e) => LaunchApp(file));
+                    (sender, args) => LaunchApp(file));
             }
 
             // If no directories or files exist in folder, add an informative row.
@@ -73,7 +73,7 @@ namespace SystrayShortcuts
                 Image = Properties.Resources.FolderOpenedImage,
                 Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold)
             };
-            headerItem.Click += (sender, e) => { LaunchApp(path); };
+            headerItem.Click += (sender, args) => { LaunchApp(path); };
             return headerItem;
         }
 

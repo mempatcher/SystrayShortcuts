@@ -1,6 +1,8 @@
-﻿namespace SystrayShortcuts
+﻿using System.Runtime.CompilerServices;
+
+namespace SystrayShortcuts
 {
-    
+
     internal class TrayMain
     {
         private NotifyIcon trayIcon;
@@ -9,9 +11,10 @@
         public TrayMain()
         {
             trayMenu = new ContextMenuStrip();
-            trayMenu.Items.Add("Add folder...", Properties.Resources.AddFolderImage, (obj,e) => AddFolder());
+            trayMenu.Items.Add("Add folder...", Properties.Resources.AddFolderImage, (sender, args) => AddFolder());
             trayMenu.Items.Add(new ToolStripSeparator());
-            trayMenu.Items.Add("Exit", null, (obj, e) => Application.Exit());
+            trayMenu.Items.Add(new ToolStripSeparator());
+            trayMenu.Items.Add("Exit", null, (sender, args) => Application.Exit());
 
             trayIcon = new NotifyIcon()
             {
@@ -31,8 +34,23 @@
             }
 
             TrayFolder tf = new TrayFolder(fbd.SelectedPath);
+            ToolStripMenuItem folderItem = tf.GetFolderItem();
+            // Add row to remove it
+            AddRemovalRow(folderItem);
             // TODO: Add and sort list instead of inserting
-            trayMenu.Items.Insert(1, tf.GetFolderItem());
+            trayMenu.Items.Insert(2, folderItem);
+        }
+
+        private void AddRemovalRow(ToolStripMenuItem menuItem)
+        {
+            menuItem.DropDownItems.Add(new ToolStripSeparator());
+            menuItem.DropDownItems.Add("Remove",
+                Properties.Resources.RemoveImage,
+                (sender, args) =>
+                {
+                    trayMenu.Items.Remove(menuItem);
+                });
+
         }
     }
 }
