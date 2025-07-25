@@ -5,29 +5,34 @@ namespace SystrayShortcuts
 
     internal class TrayMain
     {
-        private NotifyIcon trayIcon;
+        private NotifyIcon mainIcon;
+        private List<TrayFolder> trayFolders = [];
         private ContextMenuStrip trayMenu;
 
         public TrayMain()
         {
-            
-            InitTrayMenu();
-            trayIcon = new NotifyIcon()
+            CreateNotifyIcon("Systray Shortcuts", Properties.Resources.ApplicationIcon, CreateTrayMenu());
+        }
+
+        private void CreateNotifyIcon(string name, Icon? icon, ContextMenuStrip contextMenuStrip)
+        {
+            mainIcon = new NotifyIcon()
             {
-                Text = "Systray shortcuts",
-                Icon = Properties.Resources.ApplicationIcon,
-                ContextMenuStrip = trayMenu,
+                Text = name,
+                Icon = icon,
+                ContextMenuStrip = contextMenuStrip,
                 Visible = true
             };
         }
 
-        private void InitTrayMenu()
+        private ContextMenuStrip CreateTrayMenu()
         {
             trayMenu = new ContextMenuStrip();
             trayMenu.Items.Add("Add folder...", Properties.Resources.AddFolderImage, (sender, args) => AddFolder());
             trayMenu.Items.Add(new ToolStripSeparator());
             trayMenu.Items.Add(new ToolStripSeparator());
             trayMenu.Items.Add("Exit", null, (sender, args) => Application.Exit());
+            return trayMenu;
         }
 
         internal void AddFolder()
@@ -39,7 +44,9 @@ namespace SystrayShortcuts
             }
 
             TrayFolder tf = new TrayFolder(fbd.SelectedPath);
-            ToolStripMenuItem folderItem = tf.GetFolderItem();
+            trayFolders.Add(tf);
+
+            ToolStripMenuItem folderItem = tf.FolderItem;
             // Add row to remove it
             AddRemovalRow(folderItem);
             // TODO: Stort items instead of just inserting
@@ -54,6 +61,11 @@ namespace SystrayShortcuts
                 (sender, args) =>
                 {
                     trayMenu.Items.Remove(menuItem);
+                    foreach (var folder in trayFolders.Where(f => f.FolderItem == menuItem).ToList())
+                    {
+                        folder.Dispose();
+                        trayFolders.Remove(folder);
+                    }
                 });
 
         }

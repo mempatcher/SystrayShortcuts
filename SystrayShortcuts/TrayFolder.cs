@@ -2,15 +2,20 @@
 
 namespace SystrayShortcuts
 {
-    internal class TrayFolder
+    internal class TrayFolder : IDisposable
     {
-        private string folderPath;
-        private ToolStripMenuItem baseFolderItem;
+        public ToolStripMenuItem FolderItem { get; private set; }
+
+        public NotifyIcon? TrayIcon { get; private set; }
+        public string FolderPath { get; }
+
+        public string Name => Path.GetFileName(FolderPath) ?? "";
 
         public TrayFolder(string path)
         {
-            folderPath = path;
-            baseFolderItem = CreateFolderStructure(folderPath);
+            FolderPath = path;
+            FolderItem = CreateFolderStructure(FolderPath);
+            CreateNotifyIcon();
         }
 
         private ToolStripMenuItem CreateFolderStructure(string path)
@@ -24,6 +29,20 @@ namespace SystrayShortcuts
             parent.DropDownItems.Add(new ToolStripSeparator());
             ScanFolder(path, parent);
             return parent;
+        }
+        private void CreateNotifyIcon()
+        {
+            var menuItem = new ContextMenuStrip();
+            // Need to copy over the items. ToolStripItems can only have one parent
+            menuItem.Items.AddRange(CreateFolderStructure(FolderPath).DropDownItems);
+
+            TrayIcon = new NotifyIcon()
+            {
+                Text = Name,
+                Icon = Properties.Resources.ApplicationIcon,
+                ContextMenuStrip = menuItem,
+                Visible = true
+            };
         }
 
         private void ScanFolder(string path, ToolStripMenuItem parent)
@@ -59,17 +78,13 @@ namespace SystrayShortcuts
             }
         }
 
-        public ToolStripMenuItem GetFolderItem()
-        {
-            return baseFolderItem;
-        }
-
         private static ToolStripMenuItem CreateFolderHeaderRow(string path)
         {
             ToolStripMenuItem headerItem = new ToolStripMenuItem()
             {
                 Text = Path.GetFileName(path),
                 ToolTipText = path,
+                Tag = path,
                 Image = Properties.Resources.FolderOpenedImage,
                 Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold)
             };
@@ -87,6 +102,13 @@ namespace SystrayShortcuts
             {
                 MessageBox.Show($"Failed to launch \"{Path.GetFileName(path)}\"\n: {e.Message}");
             }
+        }
+
+        public void Dispose()
+        {
+            if (TrayIcon == null) return;
+            TrayIcon.Visible = false;
+            TrayIcon.Dispose();
         }
     }
 }
