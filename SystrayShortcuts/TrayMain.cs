@@ -11,6 +11,7 @@ namespace SystrayShortcuts
 
         public TrayMain()
         {
+            trayMenu = new ContextMenuStrip();
             CreateNotifyIcon("Systray Shortcuts", Properties.Resources.ApplicationIcon, CreateTrayMenu());
         }
 
@@ -27,9 +28,17 @@ namespace SystrayShortcuts
 
         private ContextMenuStrip CreateTrayMenu()
         {
-            trayMenu = new ContextMenuStrip();
+            trayMenu.Items.Clear();
             trayMenu.Items.Add("Add folder...", Properties.Resources.AddFolderImage, (sender, args) => AddFolder());
-            trayMenu.Items.Add(new ToolStripSeparator());
+            if (trayFolders.Count > 0)
+            {
+                trayMenu.Items.Add(new ToolStripSeparator());
+                foreach (TrayFolder folder in trayFolders.OrderBy(f => f.Name))
+                {
+                    trayMenu.Items.Add(folder.FolderItem);
+                }
+            }
+
             trayMenu.Items.Add(new ToolStripSeparator());
             trayMenu.Items.Add("Exit", null, (sender, args) => Application.Exit());
             return trayMenu;
@@ -49,8 +58,10 @@ namespace SystrayShortcuts
             ToolStripMenuItem folderItem = tf.FolderItem;
             // Add row to remove it
             AddRemovalRow(folderItem);
-            // TODO: Stort items instead of just inserting
-            trayMenu.Items.Insert(2, folderItem);
+
+            // Redraw the tray menu
+            CreateTrayMenu();
+
         }
 
         private void AddRemovalRow(ToolStripMenuItem menuItem)
@@ -67,7 +78,6 @@ namespace SystrayShortcuts
                         trayFolders.Remove(folder);
                     }
                 });
-
         }
     }
 }
