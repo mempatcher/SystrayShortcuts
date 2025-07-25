@@ -7,6 +7,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+    <AssemblyName>Systray Shortcuts</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
