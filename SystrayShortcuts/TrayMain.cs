@@ -65,18 +65,22 @@ namespace SystrayShortcuts
 
         }
 
-        public void ShowPickIconDialog(out Icon? icon)
+        public bool ShowPickIconDialog(ref string iconPath, ref int iconIndex)
         {
-            icon = null;
-            StringBuilder iconPath = new StringBuilder(260);
-            iconPath.Append(@"C:\Windows\System32\SHELL32.dll");
-            int iconIndex = 0;
-            bool result = PickIconDlg(IntPtr.Zero, iconPath, (uint)iconPath.Capacity, ref iconIndex);
+            if (string.IsNullOrEmpty(iconPath))
+            { 
+                iconPath = Environment.ExpandEnvironmentVariables(@"%SystemRoot%\System32\shell32.dll"); ;
+            }
+            StringBuilder path = new StringBuilder(260);
+            path.Append(iconPath); // Default to this one
+            bool result = PickIconDlg(IntPtr.Zero, path, (uint)path.Capacity, ref iconIndex);
 
             if (result)
             {
-                icon = Icon.ExtractIcon(iconPath.ToString(), iconIndex);
+                iconPath = path.ToString();
             }
+
+            return result;
         }
 
         private void AddChangeIconRow(TrayFolder trayItem)
@@ -86,10 +90,11 @@ namespace SystrayShortcuts
                 null,
                 (sender, args) =>
                 {
-                    ShowPickIconDialog(out var icon);
-                    if (icon != null)
+                    string iconPath = trayItem.IconPath;
+                    int iconIndex = trayItem.IconIndex;
+                    if (ShowPickIconDialog(ref iconPath, ref iconIndex))
                     {
-                        trayItem.SetIcon(icon);
+                        trayItem.SetIcon(iconPath, iconIndex);
                     }
                 });
         }

@@ -4,11 +4,11 @@ namespace SystrayShortcuts
 {
     internal class TrayFolder : IDisposable
     {
+        public string IconPath { get; private set; }
+        public int IconIndex { get; private set; }
         public ToolStripMenuItem FolderItem { get; private set; }
-
         public NotifyIcon? TrayIcon { get; private set; }
         public string FolderPath { get; }
-
         public string Name => Path.GetFileName(FolderPath) ?? "";
 
         public TrayFolder(string path)
@@ -104,9 +104,21 @@ namespace SystrayShortcuts
             }
         }
 
-        public void SetIcon(Icon icon)
+        public void SetIcon(string path, int index)
         {
-            if (TrayIcon != null) TrayIcon.Icon = icon;
+            if (TrayIcon == null) return;
+
+            Icon? icon = Icon.ExtractIcon(path, index);
+
+            if (icon == null)
+            {
+                // Icon does not exist anymore, reset to default icon
+                TrayIcon.Icon = Properties.Resources.ApplicationIcon;
+            }
+
+            IconPath = path;
+            IconIndex = index;
+            TrayIcon.Icon = icon;
         }
 
         public void Dispose()
