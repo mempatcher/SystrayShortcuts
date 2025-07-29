@@ -104,6 +104,11 @@ namespace SystrayShortcuts
             }
         }
 
+        public void SetIcon(Icon icon)
+        {
+            if (TrayIcon != null) TrayIcon.Icon = icon;
+        }
+
         public void Dispose()
         {
             if (TrayIcon == null) return;
