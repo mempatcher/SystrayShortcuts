@@ -58,11 +58,26 @@ namespace SystrayShortcuts
 
             var files = Directory.GetFiles(path);
             // Get files, loop though and add them as menu items
-            foreach (var file in files)
+            if (files.Length > 100)
             {
-                parent.DropDownItems.Add(Path.GetFileName(file),
-                    Icon.ExtractAssociatedIcon(file)?.ToBitmap(),
-                    (sender, args) => LaunchApp(file));
+                string text = $@"{files.Length} files in folder";
+                parent.DropDownItems.Add(
+                    new ToolStripLabel()
+                    {
+                        Text = text,
+                        Enabled = false,
+                        Font = new Font(SystemFonts.DefaultFont, FontStyle.Regular),
+                        Width = text.Length * 5 // Make sure the label does not crop the text
+                    });
+            }
+            else
+            {
+                foreach (var file in files)
+                {
+                    parent.DropDownItems.Add(Path.GetFileName(file),
+                        Icon.ExtractAssociatedIcon(file)?.ToBitmap(),
+                        (sender, args) => LaunchApp(file));
+                }
             }
 
             // If no directories or files exist in folder, add an informative row.
@@ -71,7 +86,7 @@ namespace SystrayShortcuts
                 parent.DropDownItems.Add(
                     new ToolStripLabel()
                     {
-                        Text = "Empty",
+                        Text = @"Empty",
                         Enabled = false,
                         Font = new Font(SystemFonts.DefaultFont, FontStyle.Italic)
                     });
