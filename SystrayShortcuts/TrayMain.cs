@@ -13,7 +13,14 @@ namespace SystrayShortcuts
         public TrayMain()
         {
             trayMenu = new ContextMenuStrip();
+            Settings.Load(ref trayFolders);
             CreateNotifyIcon("Systray Shortcuts", Properties.Resources.ApplicationIcon, CreateTrayMenu());
+            foreach (TrayFolder folder in trayFolders)
+            {
+                AddTrayMenuOptions(folder);
+                folder.CreateNotifyIcon();
+            }
+
         }
 
         private void CreateNotifyIcon(string name, Icon? icon, ContextMenuStrip contextMenuStrip)
@@ -41,7 +48,7 @@ namespace SystrayShortcuts
             }
 
             trayMenu.Items.Add(new ToolStripSeparator());
-            trayMenu.Items.Add("Exit", null, (sender, args) => Application.Exit());
+            trayMenu.Items.Add("Exit", null, (sender, args) => Exit());
             return trayMenu;
         }
 
@@ -54,21 +61,30 @@ namespace SystrayShortcuts
             }
 
             TrayFolder tf = new TrayFolder(fbd.SelectedPath);
-            trayFolders.Add(tf);
+            AddToTrayMenu(tf);
+            tf.CreateNotifyIcon();
+            Settings.Update(trayFolders);
+        }
 
-            tf.FolderItem.DropDownItems.Add(new ToolStripSeparator());
-            AddChangeIconRow(tf);
-            AddRemovalRow(tf);
-
+        private void AddToTrayMenu(TrayFolder folder)
+        {
+            trayFolders.Add(folder);
+            AddTrayMenuOptions(folder);
             // Redraw the tray menu
             CreateTrayMenu();
+        }
 
+        private void AddTrayMenuOptions(TrayFolder folder)
+        {
+            folder.FolderItem.DropDownItems.Add(new ToolStripSeparator());
+            AddChangeIconRow(folder);
+            AddRemovalRow(folder);
         }
 
         public bool ShowPickIconDialog(ref string iconPath, ref int iconIndex)
         {
             if (string.IsNullOrEmpty(iconPath))
-            { 
+            {
                 iconPath = Environment.ExpandEnvironmentVariables(@"%SystemRoot%\System32\shell32.dll"); ;
             }
             StringBuilder path = new StringBuilder(260);
@@ -96,6 +112,7 @@ namespace SystrayShortcuts
                     {
                         trayItem.SetIcon(iconPath, iconIndex);
                     }
+                    Settings.Update(trayFolders);
                 });
         }
 
@@ -112,11 +129,23 @@ namespace SystrayShortcuts
                     {
                         folder.Dispose();
                         trayFolders.Remove(folder);
+                        // Update settings file
+                        Settings.Update(trayFolders);
                     }
                 });
         }
 
+        private void Exit()
+        {
+            foreach (TrayFolder folder in trayFolders)
+            {
+                folder.Dispose();
+                mainIcon.Dispose();
+                Application.Exit();
+            }
+        }
+
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
         public static extern bool PickIconDlg(IntPtr hwndOwner, StringBuilder pszIconPath, uint cchIconPath, ref int piIconIndex);
-        }
+    }
 }

@@ -4,25 +4,41 @@ namespace SystrayShortcuts
 {
     internal class TrayFolder : IDisposable
     {
-        public string IconPath { get; private set; }
+        public string IconPath { get; private set; } = "";
         public int IconIndex { get; private set; }
         public ToolStripMenuItem FolderItem { get; private set; }
         public NotifyIcon? TrayIcon { get; private set; }
-        public string FolderPath { get; }
-        public string Name => Path.GetFileName(FolderPath) ?? "";
+        public string FolderPath { get; private set; }
+        public string Name { get; private set; }
+
+        
 
         public TrayFolder(string path)
         {
+            Initialize(path);
+        }
+
+        public TrayFolder(string path, string iconPath, int iconIndex)
+        {
+            IconPath = iconPath;
+            IconIndex = iconIndex;
+            Initialize(path);
+
+        }
+
+        private void Initialize(string path)
+        {
             FolderPath = path;
+            Name = GetFolderOrDriveName(FolderPath);
             FolderItem = CreateFolderStructure(FolderPath);
-            CreateNotifyIcon();
+            //CreateNotifyIcon();
         }
 
         private ToolStripMenuItem CreateFolderStructure(string path)
         {
             ToolStripMenuItem parent = new ToolStripMenuItem()
             {
-                Text = Path.GetFileName(path),
+                Text = GetFolderOrDriveName(path),
                 Image = Properties.Resources.FolderClosedImage,
             };
             parent.DropDownItems.Add(CreateFolderHeaderRow(path));
@@ -30,19 +46,29 @@ namespace SystrayShortcuts
             ScanFolder(path, parent);
             return parent;
         }
-        private void CreateNotifyIcon()
+
+        private ContextMenuStrip CreateContextMenu()
         {
             var menuItem = new ContextMenuStrip();
-            // Need to copy over the items. ToolStripItems can only have one parent
             menuItem.Items.AddRange(CreateFolderStructure(FolderPath).DropDownItems);
+            return menuItem;
+        }
+
+
+        public void CreateNotifyIcon()
+        {
+            // Need to copy over the items to be able to show in both tray menu and stand-alone tray folder.
+            // ToolStripItems can only have one parent
+
 
             TrayIcon = new NotifyIcon()
             {
-                Text = Name,
-                Icon = Properties.Resources.ApplicationIcon,
-                ContextMenuStrip = menuItem,
+                Text = GetFolderOrDriveName(FolderPath),
+                //Icon = Properties.Resources.ApplicationIcon,
+                ContextMenuStrip = CreateContextMenu(),
                 Visible = true
             };
+            SetIcon(IconPath, IconIndex);
         }
 
         private void ScanFolder(string path, ToolStripMenuItem parent)
@@ -97,7 +123,7 @@ namespace SystrayShortcuts
         {
             ToolStripMenuItem headerItem = new ToolStripMenuItem()
             {
-                Text = Path.GetFileName(path),
+                Text = GetFolderOrDriveName(path),
                 ToolTipText = path,
                 Tag = path,
                 Image = Properties.Resources.FolderOpenedImage,
@@ -119,16 +145,27 @@ namespace SystrayShortcuts
             }
         }
 
+        private static string GetFolderOrDriveName(string path)
+        {
+            var name = Path.GetPathRoot(path)!.Equals(path, StringComparison.OrdinalIgnoreCase)
+                ? path.TrimEnd(Path.DirectorySeparatorChar)
+                : Path.GetFileName(path);
+            return name;
+        }
+
         public void SetIcon(string path, int index)
         {
             if (TrayIcon == null) return;
-
-            Icon? icon = Icon.ExtractIcon(path, index);
-
-            if (icon == null)
+            Icon? icon;
+            try
             {
-                // Icon does not exist anymore, reset to default icon
+                icon = Icon.ExtractIcon(path, index);
+            }
+            catch (Exception e)
+            {
+                // Icon does not exist or could not be loaded, reset to default icon
                 TrayIcon.Icon = Properties.Resources.ApplicationIcon;
+                return;
             }
 
             IconPath = path;
