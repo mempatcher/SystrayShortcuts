@@ -4,7 +4,7 @@ using System.Text;
 namespace SystrayShortcuts
 {
 
-    internal class TrayMain
+    public class TrayMain : ApplicationContext
     {
         private NotifyIcon mainIcon;
         private List<TrayFolder> trayFolders = [];
