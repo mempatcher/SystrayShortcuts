@@ -54,23 +54,6 @@ namespace SystrayShortcuts
             contextMenu.Items.Add("Exit", null, (sender, args) => Exit());
         }
 
-        //private void CreateTrayMenu()
-        //{
-        //    trayMenu.Items.Clear();
-        //    trayMenu.Items.Add("Add folder...", Properties.Resources.AddFolderImage, (sender, args) => AddFolder());
-        //    if (trayFolders.Count > 0)
-        //    {
-        //        trayMenu.Items.Add(new ToolStripSeparator());
-        //        foreach (TrayFolder folder in trayFolders.OrderBy(f => f.Name))
-        //        {
-        //            trayMenu.Items.Add(folder.FolderItem);
-        //        }
-        //    }
-
-        //    trayMenu.Items.Add(new ToolStripSeparator());
-        //    trayMenu.Items.Add("Exit", null, (sender, args) => Exit());
-        //}
-
         internal void AddFolder()
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
