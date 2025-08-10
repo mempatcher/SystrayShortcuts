@@ -62,6 +62,12 @@ namespace SystrayShortcuts
                 return;
             }
 
+            if (trayFolders.Exists(f => f.FolderPath == fbd.SelectedPath))
+            {
+                MessageBox.Show($"\"{fbd.SelectedPath}\" is already added.", "Already added");
+                return;
+            }
+
             TrayFolder tf = new TrayFolder(fbd.SelectedPath);
             AddToTrayMenu(tf);
             tf.CreateNotifyIcon();

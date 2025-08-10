@@ -59,7 +59,7 @@ namespace SystrayShortcuts
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Error loading settings file: {e.Message}");
+                MessageBox.Show($"Error loading settings file: {e.Message}", "Systray Shortcuts");
                 return new List<FolderEntry>();
             }
         }

@@ -138,7 +138,7 @@ namespace SystrayShortcuts
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Failed to launch \"{Path.GetFileName(path)}\"\n: {e.Message}");
+                MessageBox.Show($"Failed to launch \"{Path.GetFileName(path)}\"\n: {e.Message}", "Execute failed");
             }
         }
 
