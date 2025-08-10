@@ -23,7 +23,6 @@ namespace SystrayShortcuts
             IconPath = iconPath;
             IconIndex = iconIndex;
             Initialize(path);
-
         }
 
         private void Initialize(string path)
@@ -31,7 +30,6 @@ namespace SystrayShortcuts
             FolderPath = path;
             Name = GetFolderOrDriveName(FolderPath);
             FolderItem = CreateFolderStructure(FolderPath);
-            //CreateNotifyIcon();
         }
 
         private ToolStripMenuItem CreateFolderStructure(string path)
@@ -49,6 +47,8 @@ namespace SystrayShortcuts
 
         private ContextMenuStrip CreateContextMenu()
         {
+            // Need to copy over the items to be able to show in both tray menu and stand-alone tray folder.
+            // ToolStripItems can only have one parent
             var menuItem = new ContextMenuStrip();
             menuItem.Items.AddRange(CreateFolderStructure(FolderPath).DropDownItems);
             return menuItem;
@@ -57,14 +57,9 @@ namespace SystrayShortcuts
 
         public void CreateNotifyIcon()
         {
-            // Need to copy over the items to be able to show in both tray menu and stand-alone tray folder.
-            // ToolStripItems can only have one parent
-
-
             TrayIcon = new NotifyIcon()
             {
                 Text = GetFolderOrDriveName(FolderPath),
-                //Icon = Properties.Resources.ApplicationIcon,
                 ContextMenuStrip = CreateContextMenu(),
                 Visible = true
             };
@@ -83,9 +78,10 @@ namespace SystrayShortcuts
             }
 
             var files = Directory.GetFiles(path);
-            // Get files, loop though and add them as menu items
+            // Get files
             if (files.Length > 100)
             {
+                // To many files to draw rows for
                 string text = $@"{files.Length} files in folder";
                 parent.DropDownItems.Add(
                     new ToolStripLabel()
@@ -98,6 +94,7 @@ namespace SystrayShortcuts
             }
             else
             {
+                // Loop though and add them as rows
                 foreach (var file in files)
                 {
                     parent.DropDownItems.Add(Path.GetFileName(file),
