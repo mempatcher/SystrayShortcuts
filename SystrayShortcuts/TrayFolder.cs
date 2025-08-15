@@ -7,7 +7,6 @@ namespace SystrayShortcuts
         private FileSystemWatcher watcher;
         public string IconPath { get; private set; } = "";
         public int IconIndex { get; private set; }
-        public ToolStripMenuItem FolderItem { get; private set; }
         public NotifyIcon? TrayIcon { get; private set; }
         public string FolderPath { get; private set; }
         public string Name { get; private set; }
@@ -30,7 +29,6 @@ namespace SystrayShortcuts
         {
             FolderPath = path;
             Name = GetFolderOrDriveName(FolderPath);
-            FolderItem = CreateFolderStructure(FolderPath);
             InitWatcher();
         }
 
@@ -43,6 +41,11 @@ namespace SystrayShortcuts
 
             watcher.IncludeSubdirectories = true;
             watcher.EnableRaisingEvents = true;
+        }
+
+        public ToolStripMenuItem CreateFolderStructure()
+        {
+            return CreateFolderStructure(FolderPath);
         }
 
         private ToolStripMenuItem CreateFolderStructure(string path)

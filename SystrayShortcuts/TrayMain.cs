@@ -13,9 +13,9 @@ namespace SystrayShortcuts
         {
             Settings.Load(ref trayFolders);
             Initialize();
+            // Draw each individual folder as notify icon
             foreach (TrayFolder folder in trayFolders)
             {
-                AddTrayMenuOptions(folder);
                 folder.CreateNotifyIcon();
             }
 
@@ -40,13 +40,15 @@ namespace SystrayShortcuts
             contextMenu.Items.Clear();
             contextMenu.Items.Add("Add folder...", Properties.Resources.AddFolderImage, (sender, args) => AddFolder());
 
-            // Add the created folders under main icon
+            // Add the created folders under main tray icon
             if (trayFolders.Count > 0)
             {
                 contextMenu.Items.Add(new ToolStripSeparator());
                 foreach (TrayFolder folder in trayFolders.OrderBy(f => f.Name))
                 {
-                    contextMenu.Items.Add(folder.FolderItem);
+                    ToolStripMenuItem item = folder.CreateFolderStructure();
+                    AddTrayMenuOptions(folder, item);
+                    contextMenu.Items.Add(item);
                 }
             }
 
@@ -69,24 +71,24 @@ namespace SystrayShortcuts
             }
 
             TrayFolder tf = new TrayFolder(fbd.SelectedPath);
-            AddToTrayMenu(tf);
+            AddToMainTrayMenu(tf);
             tf.CreateNotifyIcon();
             Settings.Update(trayFolders);
         }
 
-        private void AddToTrayMenu(TrayFolder folder)
+        private void AddToMainTrayMenu(TrayFolder folder)
         {
             trayFolders.Add(folder);
-            AddTrayMenuOptions(folder);
+            AddTrayMenuOptions(folder, folder.CreateFolderStructure());
             // Redraw the tray menu
             DrawContextMenu();
         }
 
-        private void AddTrayMenuOptions(TrayFolder folder)
+        private void AddTrayMenuOptions(TrayFolder folder, ToolStripMenuItem item)
         {
-            folder.FolderItem.DropDownItems.Add(new ToolStripSeparator());
-            AddChangeIconRow(folder);
-            AddRemovalRow(folder);
+            item.DropDownItems.Add(new ToolStripSeparator());
+            AddChangeIconRow(folder, item);
+            AddRemovalRow(folder, item);
         }
 
         public bool ShowPickIconDialog(ref string iconPath, ref int iconIndex)
@@ -107,9 +109,9 @@ namespace SystrayShortcuts
             return result;
         }
 
-        private void AddChangeIconRow(TrayFolder trayItem)
+        private void AddChangeIconRow(TrayFolder trayItem, ToolStripMenuItem item)
         {
-            trayItem.FolderItem.DropDownItems.Add(
+            item.DropDownItems.Add(
                 "Change icon...",
                 null,
                 (sender, args) =>
@@ -125,15 +127,15 @@ namespace SystrayShortcuts
         }
 
 
-        private void AddRemovalRow(TrayFolder trayItem)
+        private void AddRemovalRow(TrayFolder trayItem, ToolStripMenuItem item)
         {
-            trayItem.FolderItem.DropDownItems.Add(
+            item.DropDownItems.Add(
                 "Remove",
                 Properties.Resources.RemoveImage,
                 (sender, args) =>
                 {
-                    mainIcon.ContextMenuStrip?.Items.Remove(trayItem.FolderItem);
-                    foreach (var folder in trayFolders.Where(f => f.FolderItem == trayItem.FolderItem).ToList())
+                    mainIcon.ContextMenuStrip?.Items.Remove(item);
+                    foreach (var folder in trayFolders.Where(f => f.Equals(trayItem)).ToList())
                     {
                         folder.Dispose();
                         trayFolders.Remove(folder);
