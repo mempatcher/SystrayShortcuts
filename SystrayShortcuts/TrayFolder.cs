@@ -90,6 +90,9 @@ namespace SystrayShortcuts
             {
                 // Skip symlinks
                 if (new DirectoryInfo(dir).LinkTarget != null) continue;
+                // Skip hidden folders
+                if (IsHidden(dir)) continue;
+
                 parent.DropDownItems.Add(CreateFolderStructure(dir));
             }
 
@@ -113,6 +116,9 @@ namespace SystrayShortcuts
                 // Loop though and add them as rows
                 foreach (var file in files)
                 {
+                    // Skip hidden files
+                    if (IsHidden(file)) continue;
+
                     parent.DropDownItems.Add(Path.GetFileName(file),
                         Icon.ExtractAssociatedIcon(file)?.ToBitmap(),
                         (sender, args) => LaunchApp(file));
@@ -130,6 +136,11 @@ namespace SystrayShortcuts
                         Font = new Font(SystemFonts.DefaultFont, FontStyle.Italic)
                     });
             }
+        }
+
+        private static bool IsHidden(string file)
+        {
+            return (File.GetAttributes(file) & FileAttributes.Hidden) == FileAttributes.Hidden;
         }
 
         private static ToolStripMenuItem CreateFolderHeaderRow(string path)
