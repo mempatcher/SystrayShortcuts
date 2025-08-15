@@ -4,6 +4,7 @@ namespace SystrayShortcuts
 {
     internal class TrayFolder : IDisposable
     {
+        private FileSystemWatcher watcher;
         public string IconPath { get; private set; } = "";
         public int IconIndex { get; private set; }
         public ToolStripMenuItem FolderItem { get; private set; }
@@ -11,7 +12,7 @@ namespace SystrayShortcuts
         public string FolderPath { get; private set; }
         public string Name { get; private set; }
 
-        
+
 
         public TrayFolder(string path)
         {
@@ -30,6 +31,18 @@ namespace SystrayShortcuts
             FolderPath = path;
             Name = GetFolderOrDriveName(FolderPath);
             FolderItem = CreateFolderStructure(FolderPath);
+            InitWatcher();
+        }
+
+        private void InitWatcher()
+        {
+            watcher = new FileSystemWatcher(FolderPath);
+            watcher.Created += OnCreated;
+            watcher.Deleted += OnDeleted;
+            watcher.Renamed += OnRenamed;
+
+            watcher.IncludeSubdirectories = true;
+            watcher.EnableRaisingEvents = true;
         }
 
         private ToolStripMenuItem CreateFolderStructure(string path)
@@ -175,6 +188,35 @@ namespace SystrayShortcuts
             if (TrayIcon == null) return;
             TrayIcon.Visible = false;
             TrayIcon.Dispose();
+        }
+
+        //private static void OnChanged(object sender, FileSystemEventArgs e)
+        //{
+        // No need to watch changes
+        //}
+
+        private void OnCreated(object sender, FileSystemEventArgs e)
+        {
+            // Check for newly created files and subfolders
+
+            // TODO: Redraw and notify TrayMain for changes made
+            if (TrayIcon != null) TrayIcon.ContextMenuStrip = CreateContextMenu();
+        }
+
+        private void OnDeleted(object sender, FileSystemEventArgs e)
+        {
+            // Check if files or folders has been deleted
+
+            // TODO: Redraw and notify TrayMain for changes made
+            if (TrayIcon != null) TrayIcon.ContextMenuStrip = CreateContextMenu();
+        }
+
+        private void OnRenamed(object sender, FileSystemEventArgs e)
+        {
+            // Check if file or folder has been renamed
+
+            // TODO: Redraw and notify TrayMain for changes made
+            if (TrayIcon != null) TrayIcon.ContextMenuStrip = CreateContextMenu();
         }
     }
 }
