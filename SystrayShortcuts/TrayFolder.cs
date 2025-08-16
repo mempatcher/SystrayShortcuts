@@ -4,6 +4,10 @@ namespace SystrayShortcuts
 {
     internal class TrayFolder : IDisposable
     {
+        public delegate void FileStructureChangedEventHandler(object sender, EventArgs e);
+
+        public event FileStructureChangedEventHandler FileStructureChanged;
+
         private FileSystemWatcher watcher;
         public string IconPath { get; private set; } = "";
         public int IconIndex { get; private set; }
@@ -41,6 +45,11 @@ namespace SystrayShortcuts
 
             watcher.IncludeSubdirectories = true;
             watcher.EnableRaisingEvents = true;
+        }
+
+        protected virtual void OnFileStructureChanged()
+        {
+            FileStructureChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public ToolStripMenuItem CreateFolderStructure()
@@ -197,8 +206,14 @@ namespace SystrayShortcuts
             TrayIcon.Icon = icon;
         }
 
+        private void Redraw()
+        {
+            if (TrayIcon != null) TrayIcon.ContextMenuStrip = CreateContextMenu();
+        }
+
         public void Dispose()
         {
+            watcher.Dispose();
             if (TrayIcon == null) return;
             TrayIcon.Visible = false;
             TrayIcon.Dispose();
@@ -213,24 +228,27 @@ namespace SystrayShortcuts
         {
             // Check for newly created files and subfolders
 
-            // TODO: Redraw and notify TrayMain for changes made
-            if (TrayIcon != null) TrayIcon.ContextMenuStrip = CreateContextMenu();
+            Redraw();
+            // Notify that changes is made
+            OnFileStructureChanged();
         }
 
         private void OnDeleted(object sender, FileSystemEventArgs e)
         {
             // Check if files or folders has been deleted
 
-            // TODO: Redraw and notify TrayMain for changes made
-            if (TrayIcon != null) TrayIcon.ContextMenuStrip = CreateContextMenu();
+            Redraw();
+            // Notify that changes is made
+            OnFileStructureChanged();
         }
 
         private void OnRenamed(object sender, FileSystemEventArgs e)
         {
             // Check if file or folder has been renamed
 
-            // TODO: Redraw and notify TrayMain for changes made
-            if (TrayIcon != null) TrayIcon.ContextMenuStrip = CreateContextMenu();
+            Redraw();
+            // Notify that changes is made
+            OnFileStructureChanged();
         }
     }
 }

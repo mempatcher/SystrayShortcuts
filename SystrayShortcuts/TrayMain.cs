@@ -16,6 +16,7 @@ namespace SystrayShortcuts
             // Draw each individual folder as notify icon
             foreach (TrayFolder folder in trayFolders)
             {
+                folder.FileStructureChanged += OnTrayFolderChanged;
                 folder.CreateNotifyIcon();
             }
 
@@ -36,7 +37,6 @@ namespace SystrayShortcuts
         private void DrawContextMenu()
         {
             var contextMenu = mainIcon.ContextMenuStrip ?? new ContextMenuStrip();
-
             contextMenu.Items.Clear();
             contextMenu.Items.Add("Add folder...", Properties.Resources.AddFolderImage, (sender, args) => AddFolder());
 
@@ -71,9 +71,18 @@ namespace SystrayShortcuts
             }
 
             TrayFolder tf = new TrayFolder(fbd.SelectedPath);
+            tf.FileStructureChanged += OnTrayFolderChanged;
             AddToMainTrayMenu(tf);
             tf.CreateNotifyIcon();
             Settings.Update(trayFolders);
+        }
+
+        private void OnTrayFolderChanged(object sender, EventArgs e)
+        {
+            if (mainIcon.ContextMenuStrip is { InvokeRequired: true })
+                mainIcon.ContextMenuStrip.Invoke(DrawContextMenu);
+            else
+                DrawContextMenu();
         }
 
         private void AddToMainTrayMenu(TrayFolder folder)
@@ -138,6 +147,7 @@ namespace SystrayShortcuts
                     foreach (var folder in trayFolders.Where(f => f.Equals(trayItem)).ToList())
                     {
                         folder.Dispose();
+                        folder.FileStructureChanged -= OnTrayFolderChanged;
                         trayFolders.Remove(folder);
                         // Update settings file
                         Settings.Update(trayFolders);
