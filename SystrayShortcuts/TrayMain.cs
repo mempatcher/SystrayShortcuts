@@ -1,5 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 
 namespace SystrayShortcuts
 {
@@ -31,7 +33,17 @@ namespace SystrayShortcuts
                 ContextMenuStrip = new ContextMenuStrip(),
                 Visible = true
             };
+            mainIcon.MouseClick += MainIcon_MouseClick; ;
             DrawContextMenu();
+        }
+
+        private void MainIcon_MouseClick(object? sender, MouseEventArgs e)
+        {
+            // Make it open the context menu on mouse left click
+            if (e.Button == MouseButtons.Left)
+            {
+                typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(mainIcon, null);
+            }
         }
 
         private void DrawContextMenu()

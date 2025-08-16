@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 
 namespace SystrayShortcuts
 {
@@ -88,7 +89,17 @@ namespace SystrayShortcuts
                 ContextMenuStrip = CreateContextMenu(),
                 Visible = true
             };
+            TrayIcon.MouseClick += TrayIcon_MouseClick;
             SetIcon(IconPath, IconIndex);
+        }
+
+        private void TrayIcon_MouseClick(object? sender, MouseEventArgs e)
+        {
+            // Make it open the context menu on mouse left click
+            if (e.Button == MouseButtons.Left)
+            {
+                typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(TrayIcon, null);
+            }
         }
 
         private void ScanFolder(string path, ToolStripMenuItem parent)
