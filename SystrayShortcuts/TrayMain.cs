@@ -14,14 +14,13 @@ namespace SystrayShortcuts
         public TrayMain()
         {
             Settings.Load(ref trayFolders);
-            Initialize();
             // Draw each individual folder as notify icon
             foreach (TrayFolder folder in trayFolders)
             {
                 folder.FileStructureChanged += OnTrayFolderChanged;
                 folder.CreateNotifyIcon();
             }
-
+            Initialize();
         }
 
         private void Initialize()
@@ -59,6 +58,12 @@ namespace SystrayShortcuts
                 foreach (TrayFolder folder in trayFolders.OrderBy(f => f.Name))
                 {
                     ToolStripMenuItem item = folder.CreateFolderStructure();
+                    Image? img = folder.GetCustomTrayIcon()?.ToBitmap();
+                    if (img != null)
+                    {
+                        item.Image = img;
+                    }
+
                     AddTrayMenuOptions(folder, item);
                     contextMenu.Items.Add(item);
                 }
@@ -144,6 +149,7 @@ namespace SystrayShortcuts
                         trayItem.SetIcon(iconPath, iconIndex);
                     }
                     Settings.Update(trayFolders);
+                    DrawContextMenu();
                 });
         }
 

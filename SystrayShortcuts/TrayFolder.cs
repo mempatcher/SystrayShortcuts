@@ -48,6 +48,11 @@ namespace SystrayShortcuts
             watcher.EnableRaisingEvents = true;
         }
 
+        public Icon? GetCustomTrayIcon()
+        {
+            return !string.IsNullOrEmpty(IconPath) ? TrayIcon?.Icon : null;
+        }
+
         protected virtual void OnFileStructureChanged()
         {
             FileStructureChanged?.Invoke(this, EventArgs.Empty);
@@ -89,8 +94,8 @@ namespace SystrayShortcuts
                 ContextMenuStrip = CreateContextMenu(),
                 Visible = true
             };
-            TrayIcon.MouseClick += TrayIcon_MouseClick;
             SetIcon(IconPath, IconIndex);
+            TrayIcon.MouseClick += TrayIcon_MouseClick;
         }
 
         private void TrayIcon_MouseClick(object? sender, MouseEventArgs e)
