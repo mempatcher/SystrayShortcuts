@@ -8,3 +8,7 @@ Systray Shortcuts is created as a solution to this removed functionality. It all
 Starting the program adds an icon to the system tray. From that icon the user can add additional folders shortcuts as own customizable icons. 
 
 Systray Shortcuts can advantageously be set as automatic startup so that it is always available and ready to use. Adding the program to the startup folder: ``Win+R -> shell:startup``. For optimal visibilty, make sure the added folders are always shown on the system tray: ``Taskbar Settings -> Other system tray icons``
+
+## Latest Release
+
+[Systray-Shortcuts.exe](https://github.com/mempatcher/SystrayShortcuts/releases/download/v1.0/Systray-Shortcuts.exe)
