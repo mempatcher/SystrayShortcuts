@@ -1,0 +1,24 @@
+name: Publish EXE to GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags like v1.0.0
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build with MSBuild
+      run: msbuild YourProject.sln /p:Configuration=Release
+
+    - name: Upload EXE to GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: path/to/your.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
